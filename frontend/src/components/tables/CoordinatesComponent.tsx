@@ -1,5 +1,5 @@
 import {useDispatch, useSelector} from "react-redux";
-import {useEffect, useState} from "react";
+import {useCallback, useEffect, useState} from "react";
 import TableState from "../../storage/states/TableState";
 import FilterOption from "../../dtos/FilterOption";
 import OperationType from "../../dtos/OperationType";
@@ -43,30 +43,24 @@ export default function CoordinatesComponent() {
         setTableState({...tableState, filters: newFilters});
     }
 
-    const updateCoordinatesCount = async () => {
+    useEffect(() => {
         const currFilters = tableState.filters ?? [];
-        const newCount: number = await CoordinatesService.getCount(...currFilters);
-        if (newCount !== tableState.count) {
-            let nextPage = tableState.currPage;
-            if (newCount <= (tableState.currPage - 1) * tableState.pageSize) {
-                nextPage = Math.max(Math.trunc(((newCount - 1) / tableState.pageSize) + 1), 1);
+        CoordinatesService.getCount(...currFilters).then((newCount: number)=> {
+            if (newCount !== tableState.count) {
+                let nextPage = tableState.currPage;
+                if (newCount <= (tableState.currPage - 1) * tableState.pageSize) {
+                    nextPage = Math.max(Math.trunc(((newCount - 1) / tableState.pageSize) + 1), 1);
+                }
+                setTableState({ ...tableState, count: newCount, currPage: nextPage });
             }
-            setTableState({ ...tableState, count: newCount, currPage: nextPage });
-        }
-    };
+        });
+    }, [tableState.filters, reloadCoordinates]);
 
-    const updateCoordinates = async () => {
+    useEffect(() => {
         const currFilters = tableState.filters ?? [];
-        const newCoordinates = await CoordinatesService.searchCoordinates(Math.trunc((tableState.currPage - 1) * tableState.pageSize), tableState.pageSize, ...currFilters);
-        setCoordinates(newCoordinates);
-    }
-
-    useEffect(() => {
-        updateCoordinatesCount();
-    }, [tableState.filters, reloadCoordinates])
-
-    useEffect(() => {
-        updateCoordinates();
+        CoordinatesService.searchCoordinates(Math.trunc((tableState.currPage - 1) * tableState.pageSize), tableState.pageSize, ...currFilters).then((newCoordinates: CoordinatesDTO[]) => {
+            setCoordinates(newCoordinates);
+        });
     }, [tableState.currPage, tableState.pageSize, tableState.filters, reloadCoordinates]);
 
     const handleNext = async () => {

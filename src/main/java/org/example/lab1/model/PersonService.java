@@ -15,7 +15,6 @@ import org.example.lab1.model.interfaces.PersonStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.management.Notification;
 import java.util.List;
 
 @Service
@@ -23,8 +22,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-public class StorageService {
-
+public class PersonService {
     private PersonStorage personStorage;
 
     private LocationStorage locationStorage;
@@ -35,12 +33,8 @@ public class StorageService {
 
     private static final String personMessage = "person";
 
-    private static final String locationMessage = "location";
-
-    private static final String coordinatesMessage = "coordinates";
-
     @Autowired
-    public StorageService(NotificationService notificationService, PersonStorage personStorage, CoordinatesStorage coordinatesStorage, LocationStorage locationStorage) {
+    public PersonService(NotificationService notificationService, PersonStorage personStorage, CoordinatesStorage coordinatesStorage, LocationStorage locationStorage) {
         this.personStorage = personStorage;
         this.locationStorage = locationStorage;
         this.coordinatesStorage = coordinatesStorage;
@@ -61,7 +55,7 @@ public class StorageService {
         }
         newPerson.setCoordinates(currCoords);
         long createdId = this.personStorage.createPerson(newPerson);
-        notificationService.sendMessage(StorageService.personMessage);
+        notificationService.sendMessage(PersonService.personMessage);
         return createdId;
     }
 
@@ -92,7 +86,7 @@ public class StorageService {
         newPerson.setCoordinates(currCoords);
         int updated = this.personStorage.updatePerson(id, newPerson);
         if (updated > 0) {
-            notificationService.sendMessage(StorageService.personMessage);
+            notificationService.sendMessage(PersonService.personMessage);
         }
         return updated;
     }
@@ -100,77 +94,8 @@ public class StorageService {
     public int deletePersonsByFilters(FilterOption... options) throws Exception {
         int deleted = this.personStorage.deletePersonByFilter(options);
         if (deleted > 0) {
-            notificationService.sendMessage(StorageService.personMessage);
-        }
-        return deleted;
-    }
-
-    public long createLocation(Location newLocation) throws Exception {
-        long createdId = this.locationStorage.createLocation(newLocation);
-        notificationService.sendMessage(StorageService.locationMessage);
-        return createdId;
-    }
-
-    public Location getLocationById(long id) throws Exception {
-        return this.locationStorage.getLocationByID(id);
-    }
-
-    public int getLocationCount(FilterOption... options) throws Exception {
-        return this.locationStorage.getCount(options);
-    }
-
-    public List<Location> searchLocations(int offset, int limit, FilterOption... options) throws Exception{
-        return this.locationStorage.searchLocations(offset, limit, options);
-    }
-
-    public int updateLocation(long id, Location newLocation) throws Exception {
-        int updated = this.locationStorage.updateLocation(id, newLocation);
-        if (updated > 0) {
-            notificationService.sendMessage(StorageService.locationMessage);
-        }
-        return updated;
-    }
-
-    public int deleteLocation(long id) throws Exception {
-        int deleted = this.locationStorage.deleteLocation(id);
-        if (deleted > 0) {
-            notificationService.sendMessage(StorageService.locationMessage);
-        }
-        return deleted;
-    }
-
-    public long createCoordinates(Coordinates newCoordinates) throws Exception {
-        long createdId = this.coordinatesStorage.createCoordinates(newCoordinates);
-        notificationService.sendMessage(StorageService.coordinatesMessage);
-        return createdId;
-    }
-
-    public Coordinates getCoordinatesById(long id) throws Exception {
-        return this.coordinatesStorage.getCoordinatesByID(id);
-    }
-
-    public int getCoordinatesCount(FilterOption... options) throws Exception {
-        return this.coordinatesStorage.getCount(options);
-    }
-
-    public List<Coordinates> searchCoordinates(int offset, int limit, FilterOption... options) throws Exception{
-        return this.coordinatesStorage.searchCoordinates(offset, limit, options);
-    }
-
-    public int updateCoordinates(long id, Coordinates newCoordinates) throws Exception {
-        int updated = this.coordinatesStorage.updateCoordinates(id, newCoordinates);
-        if (updated > 0) {
-            notificationService.sendMessage(StorageService.coordinatesMessage);
-        }
-        return updated;
-    }
-
-    public int deleteCoordinates(long id) throws Exception {
-        int deleted = this.coordinatesStorage.deleteCoordinates(id);
-        if (deleted > 0) {
-            notificationService.sendMessage(StorageService.coordinatesMessage);
+            notificationService.sendMessage(PersonService.personMessage);
         }
         return deleted;
     }
 }
-

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import {useState, useEffect, useCallback} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styles from "../../styles/PersonTable.module.css";
 import TableState from "../../storage/states/TableState";
@@ -23,44 +23,35 @@ export default function PersonTable(props: Readonly<Props>) {
     const dispatcher = useDispatch();
     const reloadPersons = useSelector(selectReloadPersons);
     const [persons, setPersons] = useState<PersonDTO[]>([]);
-    const [localTableState, setLocalTableState] = useState({ ...props.tableState });
+    const [localTableState, setLocalTableState] = useState(props.tableState);
     useEffect(() => {
         setLocalTableState({ ...props.tableState });
     }, [props.tableState]);
     const stateNotifications = useSelector(selectNotifications);
 
-    const updatePersonsCount = async () => {
+    useEffect( () => {
         const currFilters = localTableState.filters ?? [];
-        const newCount = await PersonService.getCount(...currFilters);
-
-        let adjustedState = { ...localTableState };
-        if (newCount !== localTableState.count) {
-            if (newCount <= (localTableState.currPage - 1) * localTableState.pageSize) {
-                adjustedState.currPage = Math.max(Math.trunc(((newCount - 1) / localTableState.pageSize) + 1), 1);
+        PersonService.getCount(...currFilters).then((newCount: number) => {
+            let adjustedState = { ...localTableState };
+            if (newCount !== localTableState.count) {
+                if (newCount <= (localTableState.currPage - 1) * localTableState.pageSize) {
+                    adjustedState.currPage = Math.max(Math.trunc(((newCount - 1) / localTableState.pageSize) + 1), 1);
+                }
+                adjustedState.count = newCount;
+                setLocalTableState(adjustedState);
+                props.onChangeTableState(adjustedState);
             }
-            adjustedState.count = newCount;
-            setLocalTableState(adjustedState);
-            props.onChangeTableState(adjustedState);
-        }
-    };
+        });
+    }, [localTableState.filters, reloadPersons]);
 
-    const updatePersons = async () => {
+    useEffect(() => {
         const currFilters = localTableState.filters ?? [];
-        let adjustedState = { ...localTableState };
-        const newPersons = await PersonService.searchPersons(
-            Math.trunc((adjustedState.currPage - 1) * adjustedState.pageSize),
-            Math.trunc(adjustedState.pageSize),
+        PersonService.searchPersons(
+            Math.trunc((localTableState.currPage - 1) * localTableState.pageSize),
+            Math.trunc(localTableState.pageSize),
             ...currFilters
-        );
-        setPersons(newPersons);
-    }
+        ).then((persons: PersonDTO[]) => {setPersons(persons)});
 
-    useEffect(() => {
-        updatePersonsCount()
-    }, [localTableState.filters, reloadPersons])
-
-    useEffect(() => {
-        updatePersons();
     }, [localTableState.currPage, localTableState.pageSize, localTableState.filters, reloadPersons]);
 
     const handleNext = () => {

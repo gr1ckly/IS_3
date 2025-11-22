@@ -55,30 +55,24 @@ export default function LocationComponent () {
         setTableState({...tableState, filters: newFilters});
     }
 
-    const updateLocationsCount = async () => {
-        const currFilters = tableState.filters ?? [];
-        const newCount: number = await LocationService.getCount(...currFilters);
-        if (newCount !== tableState.count) {
-            let nextPage = tableState.currPage;
-            if (newCount <= (tableState.currPage - 1) * tableState.pageSize) {
-                nextPage = Math.max(Math.trunc(((newCount - 1) / tableState.pageSize) + 1), 1);
-            }
-            setTableState({ ...tableState, count: newCount, currPage: nextPage });
-        }
-    };
-
-    const updateLocations = async () => {
-        const currFilters = tableState.filters ?? [];
-        const newLocations = await LocationService.searchLocations(Math.trunc((tableState.currPage - 1) * tableState.pageSize), tableState.pageSize, ...currFilters);
-        setLocations(newLocations);
-    }
-
     useEffect(() => {
-        updateLocationsCount();
+        const currFilters = tableState.filters ?? [];
+        LocationService.getCount(...currFilters).then((newCount: number) => {
+            if (newCount !== tableState.count) {
+                let nextPage = tableState.currPage;
+                if (newCount <= (tableState.currPage - 1) * tableState.pageSize) {
+                    nextPage = Math.max(Math.trunc(((newCount - 1) / tableState.pageSize) + 1), 1);
+                }
+                setTableState({ ...tableState, count: newCount, currPage: nextPage });
+            }
+        });
     }, [tableState.filters, reloadLocations])
 
     useEffect(() => {
-        updateLocations();
+        const currFilters = tableState.filters ?? [];
+        LocationService.searchLocations(Math.trunc((tableState.currPage - 1) * tableState.pageSize), tableState.pageSize, ...currFilters).then((newLocations: LocationDTO[]) => {
+            setLocations(newLocations);
+        });
     }, [tableState.currPage, tableState.pageSize, tableState.filters, reloadLocations]);
 
     const handleNext = async () => {
