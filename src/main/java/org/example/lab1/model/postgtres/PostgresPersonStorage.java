@@ -6,6 +6,7 @@ import org.example.lab1.entities.dto.FilterOption;
 import org.example.lab1.exceptions.NotFoundException;
 import org.example.lab1.model.interfaces.PersonStorage;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,25 +21,29 @@ public class PostgresPersonStorage implements PersonStorage {
 
     private SQLQueryConstraintConverter<Person> queryConverter;
 
+    private SessionFactory sessionFactory;
+
     @Autowired
-    public PostgresPersonStorage(SQLQueryConstraintConverter<Person> queryConverter) {
+    public PostgresPersonStorage(SQLQueryConstraintConverter<Person> queryConverter, SessionFactory sessionFactory) {
         this.queryConverter = queryConverter;
+        this.sessionFactory = sessionFactory;
     }
 
     @Override
     @Transactional
     public long createPerson(Person person) throws Exception {
-        HibernateFactory.getSessionFactory().getCurrentSession().persist(person);
+        sessionFactory.getCurrentSession().persist(person);
         return person.getId();
     }
 
     @Override
     @Transactional
     public Person getPersonByID(long id) throws Exception {
-        return HibernateFactory.getSessionFactory().getCurrentSession().find(Person.class, id);
+        return sessionFactory.getCurrentSession().find(Person.class, id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public int getCount(FilterOption... options) throws Exception {
         int count = 0;
         StringBuilder query = new StringBuilder();
@@ -46,18 +51,19 @@ public class PostgresPersonStorage implements PersonStorage {
         query.append(alias);
         query.append(") FROM person ");
         query.append(alias);
-        Query<?> q = this.queryConverter.buildQuery(HibernateFactory.getSessionFactory().getCurrentSession(), query, alias, null, options);
+        Query<?> q = this.queryConverter.buildQuery(sessionFactory.getCurrentSession(), query, alias, null, options);
         Object res = q.getSingleResult();
         if (res instanceof Number) count = ((Number) res).intValue();
         return count;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Person> searchPersons(int offset, int limit, FilterOption... options) throws Exception {
         StringBuilder query = new StringBuilder();
         query.append("SELECT * FROM person ");
         query.append(alias);
-        Query<Person> newQuery = this.queryConverter.buildQuery(HibernateFactory.getSessionFactory().getCurrentSession(), query, alias, Person.class, options);
+        Query<Person> newQuery = this.queryConverter.buildQuery(sessionFactory.getCurrentSession(), query, alias, Person.class, options);
         newQuery.setFirstResult(offset);
         newQuery.setMaxResults(limit);
         return newQuery.getResultList();
@@ -66,7 +72,7 @@ public class PostgresPersonStorage implements PersonStorage {
     @Override
     @Transactional
     public int updatePerson(long id, Person newPerson) throws Exception {
-        Session currSession = HibernateFactory.getSessionFactory().getCurrentSession();
+        Session currSession = sessionFactory.getCurrentSession();
         if (currSession.find(Person.class, id) != null ) {
             newPerson.setId(id);
             currSession.merge(newPerson);
@@ -77,10 +83,11 @@ public class PostgresPersonStorage implements PersonStorage {
     }
 
     @Override
+    @Transactional
     public int deletePersonByFilter(FilterOption... options) throws Exception {
         StringBuilder query = new StringBuilder();
         query.append("DELETE FROM person ");
         query.append(alias);
-        return this.queryConverter.buildQuery(HibernateFactory.getSessionFactory().getCurrentSession(), query, alias, Person.class, options).executeUpdate();
+        return this.queryConverter.buildQuery(sessionFactory.getCurrentSession(), query, alias, Person.class, options).executeUpdate();
     }
 }

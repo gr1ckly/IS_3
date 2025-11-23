@@ -3,55 +3,41 @@ package org.example.lab1.model;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.example.lab1.entities.dao.ImportFile;
-import org.example.lab1.entities.dao.Person;
+import org.example.lab1.entities.dao.ImportStatus;
 import org.example.lab1.exceptions.BadDataException;
 import org.example.lab1.exceptions.BadFormatException;
-import org.example.lab1.model.interfaces.CoordinatesStorage;
 import org.example.lab1.model.interfaces.ImportFileStorage;
-import org.example.lab1.model.interfaces.LocationStorage;
-import org.example.lab1.model.interfaces.PersonStorage;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.yaml.snakeyaml.Yaml;
-import org.yaml.snakeyaml.error.YAMLException;
 
 import java.io.InputStream;
-import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 @NoArgsConstructor
 @Getter
 @Setter
+@Slf4j
 public class ImportFileService {
-    private PersonStorage personStorage;
-
-    private LocationStorage locationStorage;
-
-    private CoordinatesStorage coordinatesStorage;
-
     private ImportFileStorage importFileStorage;
 
     private NotificationService notificationService;
 
-    private PersonSimilarity personSimilarity;
+    private static final String importFilesEvent = "import_file";
 
-    private static final String importFilesMessage = "import_file";
+    private static final String importFileStatusEvent = "import_file_status";
 
-    private static final double similarTreshold = 0.85;
+    private HandleFileExecutor handleFileExecutor;
 
     @Autowired
-    public ImportFileService(PersonStorage personStorage, LocationStorage locationStorage, CoordinatesStorage coordinatesStorage, ImportFileStorage importFilesStorage, NotificationService notificationService, PersonSimilarity personSimilarity) {
-        this.personStorage = personStorage;
-        this.locationStorage = locationStorage;
-        this.coordinatesStorage = coordinatesStorage;
+    public ImportFileService(ImportFileStorage importFilesStorage, NotificationService notificationService, HandleFileExecutor handleFileExecutor) {
         this.importFileStorage = importFilesStorage;
         this. notificationService = notificationService;
-        this.personSimilarity = personSimilarity;
+        this.handleFileExecutor = handleFileExecutor;
     }
 
     public int getImportFilesCount() throws Exception {
@@ -64,72 +50,39 @@ public class ImportFileService {
 
     public long createImportFile(ImportFile file) throws Exception {
         long id = this.importFileStorage.createImportFile(file);
-        this.notificationService.sendMessage(ImportFileService.importFilesMessage);
+        this.notificationService.sendEvent(ImportFileService.importFilesEvent);
         return id;
     }
 
-    public int updateImportFile(Long id, ImportFile newFile) throws Exception {
-        int count = this.importFileStorage.updateImportFile(id, newFile);
-        this.notificationService.sendMessage(ImportFileService.importFilesMessage);
-        return count;
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    public int handleFile(InputStream inputStream) throws Exception {
+    @Async("importExecutor")
+    public CompletableFuture<Void> startHandleFile(ImportFile newFile, InputStream inputStream) throws Exception {
         try {
-            Yaml yaml = new Yaml();
-            Iterable<Object> docs = yaml.loadAll(inputStream);
-            List<Person> persons = this.parsePersons(docs);
-            return flushPersons(persons);
-        } catch (YAMLException | ParseException ye) {
-            throw new BadFormatException("Incorrect format");
+            log.info("Start file handling id: " + newFile.getId());
+            int count = this.handleFileExecutor.handleFile(inputStream);
+            newFile.setStatus(ImportStatus.SUCCESS);
+            newFile.setAddedPersons(count);
+            this.importFileStorage.updateImportFile(newFile.getId(), newFile);
+            this.notificationService.sendEvent(ImportFileService.importFilesEvent);
+            this.notificationService.sendEventWithMessage(ImportFileService.importFileStatusEvent, "Файл с id: " + newFile.getId() + " был успешно обработан, было добавлено " + count + " person");
+        } catch (BadFormatException bfe) {
+            log.info("Bad format file id: " + newFile.getId() + " e: " + bfe.getMessage());
+            newFile.setStatus(ImportStatus.BAD_FORMAT);
+            this.importFileStorage.updateImportFile(newFile.getId(), newFile);
+            this.notificationService.sendEvent(ImportFileService.importFilesEvent);
+            this.notificationService.sendEventWithMessage(ImportFileService.importFileStatusEvent, "Некорректный формат файла с id: " + newFile.getId());
+        } catch (BadDataException bde) {
+            log.info("Bad date file id: " + newFile.getId() + " e: " + bde.getMessage());
+            newFile.setStatus(ImportStatus.BAD_DATA);
+            this.importFileStorage.updateImportFile(newFile.getId(), newFile);
+            this.notificationService.sendEvent(ImportFileService.importFilesEvent);
+            this.notificationService.sendEventWithMessage(ImportFileService.importFileStatusEvent, "Невалидные данные в файле с id: " + newFile.getId());
+        } catch (Exception e) {
+            log.info("Failed file id: " + newFile.getId() + " e: " + e.getMessage());
+            newFile.setStatus(ImportStatus.FAILED);
+            this.importFileStorage.updateImportFile(newFile.getId(), newFile);
+            this.notificationService.sendEvent(ImportFileService.importFilesEvent);
+            this.notificationService.sendEventWithMessage(ImportFileService.importFileStatusEvent, "Ошибка при обработке файла с id: " + newFile.getId());
         }
-    }
-
-    private List<Person> parsePersons(Iterable<Object> docs) throws Exception {
-        List<Person> persons = new ArrayList<>();
-        for (Object obj : docs) {
-            if (obj instanceof Person) {
-                Person currPerson = (Person) obj;
-                if (this.isBadNewPerson(currPerson)) {
-                    throw new BadDataException("Not valid Person");
-                }
-                int count = tryMerge(persons, currPerson);
-                if (count == 0) {
-                    persons.add(currPerson);
-                }
-            }
-        }
-        return persons;
-    }
-
-    private int flushPersons(List<Person> persons) throws Exception {
-        int count = 0;
-        for (Person person : persons) {
-            if (person.getLocation() != null) {
-                this.locationStorage.createLocation(person.getLocation());
-            }
-            this.coordinatesStorage.createCoordinates(person.getCoordinates());
-            this.personStorage.createPerson(person);
-            count++;
-        }
-        return count;
-    }
-
-    private boolean isBadNewPerson(Person newPerson) {
-        return newPerson == null || !newPerson.isValid() || newPerson.getId() != null || newPerson.getCreationDate() != null || newPerson.getCoordinates().getId() != null || (newPerson.getLocation() != null && newPerson.getLocation().getId() != null);
-    }
-
-    private int tryMerge(List<Person> persons, Person newPerson) {
-        int count = 0;
-        if (persons != null) {
-            for (int i = 0; i < persons.size(); i++) {
-                if (this.personSimilarity.similarScore(newPerson, persons.get(i)) >= ImportFileService.similarTreshold) {
-                    persons.set(i, this.personSimilarity.merge(newPerson, persons.get(i)));
-                    count++;
-                }
-            }
-        }
-        return count;
+        return CompletableFuture.completedFuture(null);
     }
 }

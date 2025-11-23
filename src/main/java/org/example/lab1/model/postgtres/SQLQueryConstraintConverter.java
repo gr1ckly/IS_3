@@ -4,6 +4,7 @@ import org.example.lab1.entities.dto.FilterOption;
 import org.example.lab1.entities.dto.OperationType;
 import org.example.lab1.model.interfaces.QueryConstraintConverter;
 import org.hibernate.Session;
+import org.hibernate.query.NativeQuery;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Component;
 
@@ -65,9 +66,15 @@ public class SQLQueryConstraintConverter<T> implements QueryConstraintConverter<
             }
         }
 
-        Query<T> query = currClass != null
-                ? session.createNativeQuery(defaultQuery.toString(), currClass)
-                : session.createNativeQuery(defaultQuery.toString());
+        boolean isSelectQuery = defaultQuery.toString().trim().toLowerCase().startsWith("select");
+        Query<T> query;
+        if (currClass != null && isSelectQuery) {
+            NativeQuery<T> nativeQuery = session.createNativeQuery(defaultQuery.toString());
+            nativeQuery.addEntity(currClass);
+            query = nativeQuery;
+        } else {
+            query = session.createNativeQuery(defaultQuery.toString());
+        }
 
         params.forEach((k, v) -> {
             try { query.setParameter(k, v); } catch (Exception ignored) {}

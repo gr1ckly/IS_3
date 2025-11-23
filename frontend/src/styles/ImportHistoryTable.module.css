@@ -1,0 +1,112 @@
+.historyCard {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 18px;
+    border-radius: 14px;
+    background-color: #000000;
+    border: 2px solid #ffffff;
+    box-shadow: 0 6px 18px rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    max-width: min(900px, 80vw);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #ccff00;
+    letter-spacing: 0.5px;
+}
+
+.closeButton {
+    padding: 8px 14px;
+    border: 2px solid #ffffff;
+    border-radius: 8px;
+    background-color: #ffffff;
+    color: #000000;
+    cursor: pointer;
+    transition: transform 0.2s ease, background 0.3s ease, border-color 0.3s ease;
+}
+
+.closeButton:hover {
+    transform: scale(1.05);
+    background-color: #ff3b3b;
+    border-color: #ff3b3b;
+    color: #ffffff;
+}
+
+.tableWrapper {
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border: 1px solid #2d2d2d;
+    border-radius: 10px;
+    background-color: #0a0a0a;
+}
+
+.table {
+    width: 100%;
+    min-width: 520px;
+    border-collapse: collapse;
+    color: #ffffff;
+}
+
+.thead {
+    background-color: #0a0a0a;
+}
+
+.headerCell {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 2px solid #ffffff;
+    font-weight: 600;
+}
+
+.body {
+    background-color: #000000;
+}
+
+.row:nth-child(even) {
+    background-color: #0f0f0f;
+}
+
+.cell {
+    padding: 10px 12px;
+    border-bottom: 1px solid #2d2d2d;
+    color: #e6e6e6;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.pageButton {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 2px solid #ffffff;
+    background-color: #ffffff;
+    color: #000000;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.pageButton:hover {
+    transform: scale(1.05);
+    background-color: #b3e600;
+    border-color: #b3e600;
+}
+
+.pageLabel {
+    font-weight: bold;
+    color: #ffffff;
+}

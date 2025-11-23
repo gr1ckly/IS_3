@@ -5,14 +5,22 @@ import PersonComponent from "./tables/PersonComponent";
 import LocationComponent from "./tables/LocationComponent";
 import CoordinatesComponent from "./tables/CoordinatesComponent";
 import Popup from "./modal/Popup";
-import {useDispatch} from "react-redux";
-import {COPY_STATE, RELOAD_COORDINATES, RELOAD_LOCATIONS, RELOAD_PERSONS} from "../consts/StateConsts";
+import {useDispatch, useSelector} from "react-redux";
+import {
+    COPY_STATE,
+    RELOAD_COORDINATES, RELOAD_IMPORT_FILES,
+    RELOAD_LOCATIONS,
+    RELOAD_PERSONS,
+    SET_NOTIFICATIONS
+} from "../consts/StateConsts";
 import {BASE_URL, SSE_PATH} from "../consts/HttpConsts";
 import styles from "../styles/App.module.css";
 import Notification from "./modal/Notification";
+import {selectNotifications} from "../storage/StateSelectors";
 
 function App() {
     const dispatcher = useDispatch();
+    const notifications = useSelector(selectNotifications);
 
     useEffect(() => {
         const eventSource = new EventSource(BASE_URL + SSE_PATH);
@@ -33,6 +41,15 @@ function App() {
             console.log("SSE обновление coordinates:", e.data);
             dispatcher({ type: RELOAD_COORDINATES, payload: {} });
         });
+
+        eventSource.addEventListener("import_file", (e) => {
+            console.log("SSE обновление import_file:", e.data);
+            dispatcher({ type: RELOAD_IMPORT_FILES, payload: {} });
+        });
+
+        eventSource.addEventListener("import_file_status", (e) => {
+            dispatcher({type: SET_NOTIFICATIONS, payload: [...notifications, e.data]});
+        })
 
         eventSource.onerror = (err) => {
             console.error("Ошибка SSE:", err);

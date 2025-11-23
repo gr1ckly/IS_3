@@ -6,8 +6,9 @@ import {useState} from "react";
 import FilterOption from "../../dtos/FilterOption";
 import OperationType from "../../dtos/OperationType";
 import {useDispatch} from "react-redux";
-import {SET_CREATE_PERSON} from "../../consts/StateConsts";
+import {SET_CREATE_PERSON, SET_SHOW_IMPORT_FILES_HISTORY} from "../../consts/StateConsts";
 import styles from "../../styles/PersonComponent.module.css";
+import UploadFile from "./UploadFile";
 
 interface FilterProps {
     name?: string,
@@ -35,6 +36,7 @@ export default function PersonComponent() {
     const [filterState, setFilterState] = useState<FilterProps>({});
     const [sortState, setSortState] = useState<SortProps>({});
     const [isFilterOpen, setIsFilterOpen] = useState<boolean>(false);
+    const [file, setFile] = useState(undefined);
     const dispatcher = useDispatch();
 
     const applyFilters = () => {
@@ -96,6 +98,13 @@ export default function PersonComponent() {
                 >
                     Фильтры/Сортировка
                 </button>
+                <button
+                    className={styles.button}
+                    onClick={() => dispatcher({type: SET_SHOW_IMPORT_FILES_HISTORY, payload: true})}
+                >
+                    История импорта
+                </button>
+                <UploadFile/>
             </div>
             {isFilterOpen && (
                 <div className={styles.filterPanel}>

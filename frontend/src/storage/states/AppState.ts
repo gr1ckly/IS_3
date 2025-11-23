@@ -9,10 +9,12 @@ interface AppState {
     createCoordinates: boolean;
     createLocation: boolean;
     createPerson: boolean;
+    showImportFileHistory: boolean;
     notifications: string[];
     reloadPersons: {};
     reloadLocations: {};
     reloadCoordinates: {};
+    reloadImportFiles: {};
 }
 
 export default AppState;

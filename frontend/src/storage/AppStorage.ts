@@ -2,8 +2,8 @@ import {createStore, Reducer} from "@reduxjs/toolkit";
 import AppState from "./states/AppState";
 import AppAction from "./Action";
 import {
-    CLEAR_ALL, COPY_STATE, RELOAD_COORDINATES, RELOAD_LOCATIONS, RELOAD_PERSONS,
-    SET_CREATE_COORDINATES, SET_CREATE_LOCATION, SET_CREATE_PERSON, SET_NOTIFICATIONS,
+    CLEAR_ALL, COPY_STATE, RELOAD_COORDINATES, RELOAD_IMPORT_FILES, RELOAD_LOCATIONS, RELOAD_PERSONS,
+    SET_CREATE_COORDINATES, SET_CREATE_LOCATION, SET_CREATE_PERSON, SET_NOTIFICATIONS, SET_SHOW_IMPORT_FILES_HISTORY,
     SET_UPDATE_COORDINATES,
     SET_UPDATE_LOCATION,
     SET_UPDATE_PERSON
@@ -17,10 +17,12 @@ export const defaultState: AppState = {
     createCoordinates: false,
     createLocation: false,
     createPerson: false,
+    showImportFileHistory: false,
     notifications: [] as string[],
     reloadPersons: {},
     reloadLocations: {},
     reloadCoordinates: {},
+    reloadImportFiles: {},
 };
 
 const reducer: Reducer<AppState, AppAction<PersonDTO | LocationDTO | CoordinatesDTO | boolean | string[] | {}>> = (state: AppState = defaultState, action: AppAction<PersonDTO | LocationDTO | CoordinatesDTO | boolean | string[] | {}>): AppState => {
@@ -37,6 +39,8 @@ const reducer: Reducer<AppState, AppAction<PersonDTO | LocationDTO | Coordinates
             return {...defaultState, createLocation: action.payload as boolean, notifications: state.notifications};
         case SET_CREATE_PERSON:
             return {...defaultState, createPerson: action.payload as boolean, notifications: state.notifications};
+        case SET_SHOW_IMPORT_FILES_HISTORY:
+            return {...defaultState, showImportFileHistory: action.payload as boolean, notifications: state.notifications}
         case CLEAR_ALL:
             return defaultState;
         case COPY_STATE:
@@ -49,6 +53,8 @@ const reducer: Reducer<AppState, AppAction<PersonDTO | LocationDTO | Coordinates
             return {...state, reloadLocations: {}};
         case RELOAD_COORDINATES:
             return {...state, reloadCoordinates: {}};
+        case RELOAD_IMPORT_FILES:
+            return {...state, reloadImportFiles: {}};
         default:
             return state;
     }

@@ -22,7 +22,7 @@ public class CoordinatesService {
 
     private NotificationService notificationService;
 
-    private static final String coordinatesMessage = "coordinates";
+    private static final String coordinatesEvent = "coordinates";
 
     @Autowired
     public CoordinatesService(NotificationService notificationService, CoordinatesStorage coordinatesStorage) {
@@ -33,7 +33,7 @@ public class CoordinatesService {
 
     public long createCoordinates(Coordinates newCoordinates) throws Exception {
         long createdId = this.coordinatesStorage.createCoordinates(newCoordinates);
-        notificationService.sendMessage(CoordinatesService.coordinatesMessage);
+        notificationService.sendEvent(CoordinatesService.coordinatesEvent);
         return createdId;
     }
 
@@ -52,7 +52,7 @@ public class CoordinatesService {
     public int updateCoordinates(long id, Coordinates newCoordinates) throws Exception {
         int updated = this.coordinatesStorage.updateCoordinates(id, newCoordinates);
         if (updated > 0) {
-            notificationService.sendMessage(CoordinatesService.coordinatesMessage);
+            notificationService.sendEvent(CoordinatesService.coordinatesEvent);
         }
         return updated;
     }
@@ -60,7 +60,7 @@ public class CoordinatesService {
     public int deleteCoordinates(long id) throws Exception {
         int deleted = this.coordinatesStorage.deleteCoordinates(id);
         if (deleted > 0) {
-            notificationService.sendMessage(CoordinatesService.coordinatesMessage);
+            notificationService.sendEvent(CoordinatesService.coordinatesEvent);
         }
         return deleted;
     }

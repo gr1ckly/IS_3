@@ -3,6 +3,7 @@ package org.example.lab1.model;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.text.similarity.JaroWinklerSimilarity;
 import org.example.lab1.entities.dao.Coordinates;
 import org.example.lab1.entities.dao.Location;
@@ -42,7 +43,7 @@ public class PersonSimilarity {
     }
 
     private double numberScore(double number1, double number2) {
-        return Math.min(1 - Math.abs(number1 - number2) / (Math.max(Math.abs(number1), Math.abs(number2)) == 0 ? 1 : Math.max(Math.abs(number1), Math.abs(number2))), 0);
+        return Math.max(1 - Math.abs(number1 - number2) / (Math.max(Math.abs(number1), Math.abs(number2)) == 0 ? 1 : Math.max(Math.abs(number1), Math.abs(number2))), 0);
     }
 
     private double textScore(String text1, String text2) {

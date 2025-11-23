@@ -31,7 +31,7 @@ public class PersonService {
 
     private NotificationService notificationService;
 
-    private static final String personMessage = "person";
+    private static final String personEvent = "person";
 
     @Autowired
     public PersonService(NotificationService notificationService, PersonStorage personStorage, CoordinatesStorage coordinatesStorage, LocationStorage locationStorage) {
@@ -55,7 +55,7 @@ public class PersonService {
         }
         newPerson.setCoordinates(currCoords);
         long createdId = this.personStorage.createPerson(newPerson);
-        notificationService.sendMessage(PersonService.personMessage);
+        notificationService.sendEvent(PersonService.personEvent);
         return createdId;
     }
 
@@ -86,7 +86,7 @@ public class PersonService {
         newPerson.setCoordinates(currCoords);
         int updated = this.personStorage.updatePerson(id, newPerson);
         if (updated > 0) {
-            notificationService.sendMessage(PersonService.personMessage);
+            notificationService.sendEvent(PersonService.personEvent);
         }
         return updated;
     }
@@ -94,7 +94,7 @@ public class PersonService {
     public int deletePersonsByFilters(FilterOption... options) throws Exception {
         int deleted = this.personStorage.deletePersonByFilter(options);
         if (deleted > 0) {
-            notificationService.sendMessage(PersonService.personMessage);
+            notificationService.sendEvent(PersonService.personEvent);
         }
         return deleted;
     }

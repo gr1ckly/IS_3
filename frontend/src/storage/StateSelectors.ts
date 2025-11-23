@@ -2,6 +2,7 @@ import AppState from "./states/AppState";
 import PersonDTO from "../dtos/PersonDTO";
 import LocationDTO from "../dtos/LocationDTO";
 import CoordinatesDTO from "../dtos/CoordinatesDTO";
+import App from "../components/App";
 
 export const selectUpdatedPerson = (state: AppState): PersonDTO | undefined => {
     return state.updatedPerson;
@@ -31,6 +32,10 @@ export const selectNotifications = (state: AppState): string[] => {
     return state.notifications;
 }
 
+export const selectShowImportFileHistory = (state: AppState): boolean => {
+    return state.showImportFileHistory;
+}
+
 export const selectReloadPersons = (state: AppState): {} => {
     return state.reloadPersons;
 }
@@ -41,4 +46,8 @@ export const selectReloadLocations = (state: AppState): {} => {
 
 export const selectReloadCoordinates = (state: AppState): {} => {
     return state.reloadCoordinates;
+}
+
+export const selectReloadImportFiles = (state: AppState): {} => {
+    return state.reloadImportFiles;
 }

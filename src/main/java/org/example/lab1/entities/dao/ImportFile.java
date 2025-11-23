@@ -46,6 +46,13 @@ public class ImportFile {
     @Check(constraints = "added_persons >= 0")
     private int addedPersons;
 
+    @PrePersist
+    public void creationDate() {
+        if (this.creationDate == null) {
+            this.creationDate = new Date();
+        }
+    }
+
     public ImportFileDTO toDTO() {
         return new ImportFileDTO(id, name, creationDate, status, addedPersons);
     }

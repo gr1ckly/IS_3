@@ -20,6 +20,7 @@
         <mapping class="org.example.lab1.entities.dao.Person"/>
         <mapping class="org.example.lab1.entities.dao.Coordinates"/>
         <mapping class="org.example.lab1.entities.dao.Location"/>
+        <mapping class="org.example.lab1.entities.dao.ImportFile"/>
 
     </session-factory>
 </hibernate-configuration>

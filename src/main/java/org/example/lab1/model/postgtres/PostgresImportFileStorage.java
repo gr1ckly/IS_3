@@ -1,7 +1,11 @@
 package org.example.lab1.model.postgtres;
 
 import org.example.lab1.entities.dao.ImportFile;
+import org.example.lab1.entities.dao.Person;
+import org.example.lab1.exceptions.NotFoundException;
 import org.example.lab1.model.interfaces.ImportFileStorage;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -15,25 +19,29 @@ public class PostgresImportFileStorage implements ImportFileStorage {
 
     private SQLQueryConstraintConverter<ImportFile> queryConverter;
 
+    private SessionFactory sessionFactory;
+
     @Autowired
-    public PostgresImportFileStorage(SQLQueryConstraintConverter<ImportFile> queryConverter) {
+    public PostgresImportFileStorage(SQLQueryConstraintConverter<ImportFile> queryConverter, SessionFactory sessionFactory) {
         this.queryConverter = queryConverter;
+        this.sessionFactory = sessionFactory;
     }
 
     @Override
     @Transactional
     public long createImportFile(ImportFile file) throws Exception {
-        HibernateFactory.getSessionFactory().getCurrentSession().persist(file);
+        sessionFactory.getCurrentSession().persist(file);
         return file.getId();
     }
 
     @Override
     @Transactional
     public ImportFile getFileByID(long id) throws Exception {
-        return HibernateFactory.getSessionFactory().getCurrentSession().find(ImportFile.class, id);
+        return sessionFactory.getCurrentSession().find(ImportFile.class, id);
     }
 
     @Override
+    @Transactional
     public int getCount() throws Exception {
         int count = 0;
         StringBuilder query = new StringBuilder();
@@ -41,7 +49,7 @@ public class PostgresImportFileStorage implements ImportFileStorage {
         query.append(alias);
         query.append(") FROM import_files ");
         query.append(alias);
-        Query<?> q = this.queryConverter.buildQuery(HibernateFactory.getSessionFactory().getCurrentSession(), query, alias, null);
+        Query<?> q = this.queryConverter.buildQuery(sessionFactory.getCurrentSession(), query, alias, null);
         Object res = q.getSingleResult();
         if (res instanceof Number) count = ((Number) res).intValue();
         return count;
@@ -53,7 +61,7 @@ public class PostgresImportFileStorage implements ImportFileStorage {
         StringBuilder query = new StringBuilder();
         query.append("SELECT * FROM import_files ");
         query.append(alias);
-        Query<ImportFile> newQuery = this.queryConverter.buildQuery(HibernateFactory.getSessionFactory().getCurrentSession(), query, alias, ImportFile.class);
+        Query<ImportFile> newQuery = this.queryConverter.buildQuery(sessionFactory.getCurrentSession(), query, alias, ImportFile.class);
         newQuery.setFirstResult(offset);
         newQuery.setMaxResults(limit);
         return newQuery.getResultList();
@@ -62,9 +70,13 @@ public class PostgresImportFileStorage implements ImportFileStorage {
     @Override
     @Transactional
     public int updateImportFile(long id, ImportFile newFile) throws Exception {
-        StringBuilder query = new StringBuilder();
-        query.append("DELETE FROM import_files ");
-        query.append(alias);
-        return this.queryConverter.buildQuery(HibernateFactory.getSessionFactory().getCurrentSession(), query, alias, ImportFile.class).executeUpdate();
+        Session currSession = sessionFactory.getCurrentSession();
+        if (currSession.find(ImportFile.class, id) != null ) {
+            newFile.setId(id);
+            currSession.merge(newFile);
+            return 1;
+        }else {
+            throw new NotFoundException("ImportFile Not Found");
+        }
     }
 }

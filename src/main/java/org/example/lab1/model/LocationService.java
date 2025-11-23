@@ -22,7 +22,7 @@ public class LocationService {
 
     private NotificationService notificationService;
 
-    private static final String locationMessage = "location";
+    private static final String locationEvent = "location";
 
     @Autowired
     public LocationService(NotificationService notificationService, LocationStorage locationStorage) {
@@ -32,7 +32,7 @@ public class LocationService {
 
     public long createLocation(Location newLocation) throws Exception {
         long createdId = this.locationStorage.createLocation(newLocation);
-        notificationService.sendMessage(LocationService.locationMessage);
+        notificationService.sendEvent(LocationService.locationEvent);
         return createdId;
     }
 
@@ -51,7 +51,7 @@ public class LocationService {
     public int updateLocation(long id, Location newLocation) throws Exception {
         int updated = this.locationStorage.updateLocation(id, newLocation);
         if (updated > 0) {
-            notificationService.sendMessage(LocationService.locationMessage);
+            notificationService.sendEvent(LocationService.locationEvent);
         }
         return updated;
     }
@@ -59,7 +59,7 @@ public class LocationService {
     public int deleteLocation(long id) throws Exception {
         int deleted = this.locationStorage.deleteLocation(id);
         if (deleted > 0) {
-            notificationService.sendMessage(LocationService.locationMessage);
+            notificationService.sendEvent(LocationService.locationEvent);
         }
         return deleted;
     }

@@ -7,6 +7,7 @@ import org.example.lab1.entities.dto.OperationType;
 import org.example.lab1.exceptions.NotFoundException;
 import org.example.lab1.model.interfaces.CoordinatesStorage;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,22 +22,25 @@ public class PostgresCoordinatesStorage implements CoordinatesStorage {
 
     private SQLQueryConstraintConverter<Coordinates> queryConverter;
 
+    private SessionFactory sessionFactory;
+
     @Autowired
-    public PostgresCoordinatesStorage(SQLQueryConstraintConverter<Coordinates> queryConverter) {
+    public PostgresCoordinatesStorage(SQLQueryConstraintConverter<Coordinates> queryConverter, SessionFactory sessionFactory) {
         this.queryConverter = queryConverter;
+        this.sessionFactory = sessionFactory;
     }
 
     @Override
     @Transactional
     public long createCoordinates(Coordinates coords) throws Exception {
-        HibernateFactory.getSessionFactory().getCurrentSession().persist(coords);
+        sessionFactory.getCurrentSession().persist(coords);
         return coords.getId();
     }
 
     @Override
     @Transactional
     public Coordinates getCoordinatesByID(long id) throws Exception {
-        return  HibernateFactory.getSessionFactory().getCurrentSession().find(Coordinates.class, id);
+        return sessionFactory.getCurrentSession().find(Coordinates.class, id);
     }
 
     @Override
@@ -48,7 +52,7 @@ public class PostgresCoordinatesStorage implements CoordinatesStorage {
         query.append(alias);
         query.append(") FROM coordinates ");
         query.append(alias);
-        Query<?> q = this.queryConverter.buildQuery(HibernateFactory.getSessionFactory().getCurrentSession(), query, alias, null, options);
+        Query<?> q = this.queryConverter.buildQuery(sessionFactory.getCurrentSession(), query, alias, null, options);
         Object res = q.getSingleResult();
         if (res instanceof Number) count = ((Number) res).intValue();
         return count;
@@ -62,7 +66,7 @@ public class PostgresCoordinatesStorage implements CoordinatesStorage {
         query.append("SELECT * FROM coordinates ");
         query.append(alias);
         if (options != null) {
-            Query<Coordinates> newQuery = this.queryConverter.buildQuery(HibernateFactory.getSessionFactory().getCurrentSession(), query, alias, Coordinates.class, options);
+            Query<Coordinates> newQuery = this.queryConverter.buildQuery(sessionFactory.getCurrentSession(), query, alias, Coordinates.class, options);
             newQuery.setFirstResult(offset);
             newQuery.setMaxResults(limit);
             coords = newQuery.getResultList();
@@ -73,7 +77,7 @@ public class PostgresCoordinatesStorage implements CoordinatesStorage {
     @Override
     @Transactional
     public int updateCoordinates(long id, Coordinates newCoords) throws Exception {
-        Session currSession = HibernateFactory.getSessionFactory().getCurrentSession();
+        Session currSession = sessionFactory.getCurrentSession();
         if (currSession.find(Coordinates.class, id) != null) {
             newCoords.setId(id);
             currSession.merge(newCoords);
@@ -89,6 +93,6 @@ public class PostgresCoordinatesStorage implements CoordinatesStorage {
         StringBuilder query = new StringBuilder();
         query.append("DELETE FROM coordinates ");
         query.append(alias);
-        return this.queryConverter.buildQuery(HibernateFactory.getSessionFactory().getCurrentSession(), query, alias, Coordinates.class, new FilterOption("id", OperationType.EQUAL, Long.toString(id))).executeUpdate();
+        return this.queryConverter.buildQuery(sessionFactory.getCurrentSession(), query, alias, Coordinates.class, new FilterOption("id", OperationType.EQUAL, Long.toString(id))).executeUpdate();
     }
 }
