@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<infinispan xmlns="urn:infinispan:config:15.2">
+    <cache-container name="hibernate" statistics="true">
+        <local-cache name="entity">
+            <memory max-count="10000"/>
+            <expiration
+                    lifespan="600000"
+            interval="60000"/>
+        </local-cache>
+        <local-cache name="collection">
+            <memory max-count="5000"/>
+            <expiration
+                    lifespan="600000"
+                    interval="60000"/>
+        </local-cache>
+        <local-cache name="query">
+            <memory max-count="1000"/>
+            <expiration
+                    lifespan="300000"
+            interval="60000"/>
+        </local-cache>
+        <local-cache name="timestamps">
+            <memory max-count="1000"/>
+            <expiration
+                    lifespan="300000"
+                    interval="60000"/>
+        </local-cache>
+    </cache-container>
+</infinispan>

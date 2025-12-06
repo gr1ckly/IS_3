@@ -16,6 +16,8 @@ import java.util.Date;
 @Table(name = "person")
 @Getter
 @Setter
+@Cacheable
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @AllArgsConstructor
 @NoArgsConstructor
 public class Person {
