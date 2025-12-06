@@ -80,4 +80,8 @@
         <location>/err</location>
     </error-page>
 
+    <context-param>
+        <param-name>cacheMetricsLogEnabled</param-name>
+        <param-value>true</param-value>
+    </context-param>
 </web-app>

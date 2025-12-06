@@ -5,6 +5,7 @@ import org.example.lab1.entities.dao.Person;
 import org.example.lab1.entities.dto.FilterOption;
 import org.example.lab1.exceptions.NotFoundException;
 import org.example.lab1.model.interfaces.PersonStorage;
+import org.example.lab1.util.LogCacheMetrics;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -31,6 +32,7 @@ public class PostgresPersonStorage implements PersonStorage {
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public long createPerson(Person person) throws Exception {
         sessionFactory.getCurrentSession().persist(person);
         return person.getId();
@@ -38,12 +40,14 @@ public class PostgresPersonStorage implements PersonStorage {
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public Person getPersonByID(long id) throws Exception {
         return sessionFactory.getCurrentSession().find(Person.class, id);
     }
 
     @Override
     @Transactional(readOnly = true)
+    @LogCacheMetrics
     public int getCount(FilterOption... options) throws Exception {
         int count = 0;
         StringBuilder query = new StringBuilder();
@@ -59,6 +63,7 @@ public class PostgresPersonStorage implements PersonStorage {
 
     @Override
     @Transactional(readOnly = true)
+    @LogCacheMetrics
     public List<Person> searchPersons(int offset, int limit, FilterOption... options) throws Exception {
         StringBuilder query = new StringBuilder();
         query.append("SELECT * FROM person ");
@@ -71,6 +76,7 @@ public class PostgresPersonStorage implements PersonStorage {
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public int updatePerson(long id, Person newPerson) throws Exception {
         Session currSession = sessionFactory.getCurrentSession();
         if (currSession.find(Person.class, id) != null ) {
@@ -84,6 +90,7 @@ public class PostgresPersonStorage implements PersonStorage {
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public int deletePersonByFilter(FilterOption... options) throws Exception {
         StringBuilder query = new StringBuilder();
         query.append("DELETE FROM person ");
@@ -93,12 +100,14 @@ public class PostgresPersonStorage implements PersonStorage {
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public void flush() throws Exception{
         this.sessionFactory.getCurrentSession().flush();
     }
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public void clear() throws Exception{
         this.sessionFactory.getCurrentSession().clear();
     }

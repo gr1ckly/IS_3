@@ -6,6 +6,7 @@ import org.example.lab1.entities.dto.FilterOption;
 import org.example.lab1.entities.dto.OperationType;
 import org.example.lab1.exceptions.NotFoundException;
 import org.example.lab1.model.interfaces.CoordinatesStorage;
+import org.example.lab1.util.LogCacheMetrics;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -32,6 +33,7 @@ public class PostgresCoordinatesStorage implements CoordinatesStorage {
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public long createCoordinates(Coordinates coords) throws Exception {
         sessionFactory.getCurrentSession().persist(coords);
         return coords.getId();
@@ -39,12 +41,14 @@ public class PostgresCoordinatesStorage implements CoordinatesStorage {
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public Coordinates getCoordinatesByID(long id) throws Exception {
         return sessionFactory.getCurrentSession().find(Coordinates.class, id);
     }
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public int getCount(FilterOption... options) throws Exception {
         int count = 0;
         StringBuilder query = new StringBuilder();
@@ -60,6 +64,7 @@ public class PostgresCoordinatesStorage implements CoordinatesStorage {
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public List<Coordinates> searchCoordinates(int offset, int limit, FilterOption... options) throws Exception {
         List<Coordinates> coords = null;
         StringBuilder query = new StringBuilder();
@@ -76,6 +81,7 @@ public class PostgresCoordinatesStorage implements CoordinatesStorage {
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public int updateCoordinates(long id, Coordinates newCoords) throws Exception {
         Session currSession = sessionFactory.getCurrentSession();
         if (currSession.find(Coordinates.class, id) != null) {
@@ -89,6 +95,7 @@ public class PostgresCoordinatesStorage implements CoordinatesStorage {
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public int deleteCoordinates(long id) throws Exception {
         StringBuilder query = new StringBuilder();
         query.append("DELETE FROM coordinates ");
@@ -98,12 +105,14 @@ public class PostgresCoordinatesStorage implements CoordinatesStorage {
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public void flush() throws Exception{
         this.sessionFactory.getCurrentSession().flush();
     }
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public void clear() throws Exception{
         this.sessionFactory.getCurrentSession().clear();
     }

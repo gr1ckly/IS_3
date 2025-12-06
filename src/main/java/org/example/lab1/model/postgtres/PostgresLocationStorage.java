@@ -5,6 +5,7 @@ import org.example.lab1.entities.dto.FilterOption;
 import org.example.lab1.entities.dto.OperationType;
 import org.example.lab1.exceptions.NotFoundException;
 import org.example.lab1.model.interfaces.LocationStorage;
+import org.example.lab1.util.LogCacheMetrics;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -31,6 +32,7 @@ public class PostgresLocationStorage implements LocationStorage {
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public long createLocation(Location location) throws Exception {
         sessionFactory.getCurrentSession().persist(location);
         return location.getId();
@@ -38,12 +40,14 @@ public class PostgresLocationStorage implements LocationStorage {
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public Location getLocationByID(long id) throws Exception {
         return sessionFactory.getCurrentSession().find(Location.class, id);
     }
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public int getCount(FilterOption... options) throws Exception {
         int count = 0;
         StringBuilder query = new StringBuilder();
@@ -59,6 +63,7 @@ public class PostgresLocationStorage implements LocationStorage {
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public List<Location> searchLocations(int offset, int limit, FilterOption... options) throws Exception {
         StringBuilder query = new StringBuilder();
         query.append("SELECT * FROM location ");
@@ -71,6 +76,7 @@ public class PostgresLocationStorage implements LocationStorage {
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public int updateLocation(long id, Location newLocation) throws Exception {
         Session currSession = sessionFactory.getCurrentSession();
         if (currSession.find(Location.class, id) != null){
@@ -84,6 +90,7 @@ public class PostgresLocationStorage implements LocationStorage {
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public int deleteLocation(long id) throws Exception {
         StringBuilder query = new StringBuilder();
         query.append("DELETE FROM location ");
@@ -93,12 +100,14 @@ public class PostgresLocationStorage implements LocationStorage {
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public void flush() throws Exception{
         this.sessionFactory.getCurrentSession().flush();
     }
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public void clear() throws Exception{
         this.sessionFactory.getCurrentSession().clear();
     }

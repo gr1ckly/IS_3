@@ -1,4 +1,4 @@
-package org.example.lab1.controller;
+package org.example.lab1.util;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

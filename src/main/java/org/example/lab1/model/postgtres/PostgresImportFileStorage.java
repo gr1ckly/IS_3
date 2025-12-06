@@ -4,6 +4,7 @@ import org.example.lab1.entities.dao.ImportFile;
 import org.example.lab1.entities.dao.Person;
 import org.example.lab1.exceptions.NotFoundException;
 import org.example.lab1.model.interfaces.ImportFileStorage;
+import org.example.lab1.util.LogCacheMetrics;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
@@ -29,6 +30,7 @@ public class PostgresImportFileStorage implements ImportFileStorage {
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public long createImportFile(ImportFile file) throws Exception {
         sessionFactory.getCurrentSession().persist(file);
         return file.getId();
@@ -36,12 +38,14 @@ public class PostgresImportFileStorage implements ImportFileStorage {
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public ImportFile getFileByID(long id) throws Exception {
         return sessionFactory.getCurrentSession().find(ImportFile.class, id);
     }
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public int getCount() throws Exception {
         int count = 0;
         StringBuilder query = new StringBuilder();
@@ -57,6 +61,7 @@ public class PostgresImportFileStorage implements ImportFileStorage {
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public List<ImportFile> searchImportFiles(int offset, int limit) throws Exception {
         StringBuilder query = new StringBuilder();
         query.append("SELECT * FROM import_files ");
@@ -69,6 +74,7 @@ public class PostgresImportFileStorage implements ImportFileStorage {
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public int updateImportFile(long id, ImportFile newFile) throws Exception {
         Session currSession = sessionFactory.getCurrentSession();
         if (currSession.find(ImportFile.class, id) != null ) {
@@ -82,12 +88,14 @@ public class PostgresImportFileStorage implements ImportFileStorage {
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public void flush() throws Exception{
         this.sessionFactory.getCurrentSession().flush();
     }
 
     @Override
     @Transactional
+    @LogCacheMetrics
     public void clear() throws Exception{
         this.sessionFactory.getCurrentSession().clear();
     }

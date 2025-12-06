@@ -79,6 +79,7 @@ public class SQLQueryConstraintConverter<T> implements QueryConstraintConverter<
         params.forEach((k, v) -> {
             try { query.setParameter(k, v); } catch (Exception ignored) {}
         });
+        query.setCacheable(true);
         return query;
     }
 

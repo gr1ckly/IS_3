@@ -38,6 +38,7 @@ public class Person {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "coordinates_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Coordinates coordinates; //Поле не может быть null
 
     @Column(name = "creation_date", nullable = false, updatable = false)
@@ -54,6 +55,7 @@ public class Person {
 
     @ManyToOne(fetch = FetchType.LAZY, optional = true)
     @JoinColumn(name = "location_id", nullable = true)
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Location location; //Поле может быть null
 
     @Column(name = "height",nullable = false)
