@@ -79,7 +79,7 @@ export default function ImportHistoryTable() {
                             <th className={styles.cell}>{file.creationDate ? new Date(file.creationDate).toLocaleString() : ""}</th>
                             <th className={styles.cell}>{file.status}</th>
                             <th className={styles.cell}>
-                                {file.addedPersons !== undefined ? file.addedPersons : ""}
+                                {file.addedPersons !== undefined && file.addedPersons !== 0 ? file.addedPersons : ""}
                             </th>
                         </tr>
                     ))}

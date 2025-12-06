@@ -49,12 +49,12 @@ export default function UploadFile() {
         const fileId = await ImportFileService.uploadFile(file);
         if (fileId > 0) {
             resetFileSelection();
-            dispatcher({type: SET_NOTIFICATIONS, payload: [...notification, `Файл был принят в обработку, id: ${fileId}`]});
+            dispatcher({type: SET_NOTIFICATIONS, payload: [...notification, `File started handling, id: ${fileId}`]});
             return;
         }
 
         resetFileSelection();
-        dispatcher({type: SET_NOTIFICATIONS, payload: [...notification, "Произошла ошибка при загрузке файла"]});
+        dispatcher({type: SET_NOTIFICATIONS, payload: [...notification, "Error while loading file"]});
     };
 
 

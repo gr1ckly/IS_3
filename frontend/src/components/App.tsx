@@ -45,10 +45,13 @@ function App() {
         eventSource.addEventListener("import_file", (e) => {
             console.log("SSE обновление import_file:", e.data);
             dispatcher({ type: RELOAD_IMPORT_FILES, payload: {} });
+            dispatcher({ type: RELOAD_COORDINATES, payload: {} });
+            dispatcher({ type: RELOAD_LOCATIONS, payload: {} });
+            dispatcher({ type: RELOAD_PERSONS, payload: {} });
         });
 
         eventSource.addEventListener("import_file_status", (e) => {
-            dispatcher({type: SET_NOTIFICATIONS, payload: [...notifications, e.data]});
+            dispatcher({type: SET_NOTIFICATIONS, payload: [...notifications, e.data as string]});
         })
 
         eventSource.onerror = (err) => {

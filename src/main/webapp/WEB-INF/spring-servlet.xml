@@ -21,16 +21,18 @@
         <property name="suffix" value=".jsp"/>
     </bean>
 
-    <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
-        <property name="driverClassName" value="org.postgresql.Driver"/>
-        <property name="jdbcUrl" value="jdbc:postgresql://db:5432/lab1db"/>
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="url" value="jdbc:postgresql://db:5432/lab1db"/>
         <property name="username" value="myuser"/>
         <property name="password" value="secret"/>
-        <property name="maximumPoolSize" value="20"/>
-        <property name="minimumIdle" value="3"/>
-        <property name="connectionTimeout" value="20000"/>
-        <property name="idleTimeout" value="300000"/>
-        <property name="poolName" value="lab1Hikari"/>
+        <property name="driverClassName" value="org.postgresql.Driver"/>
+
+        <property name="initialSize" value="5"/>
+        <property name="minIdle" value="3"/>
+        <property name="maxActive" value="20"/>
+        <property name="maxWait" value="30000"/>
+        <property name="connectTimeout" value="20000"/>
+        <property name="testWhileIdle" value="true"/>
     </bean>
 
     <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
