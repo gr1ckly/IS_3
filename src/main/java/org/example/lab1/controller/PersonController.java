@@ -15,7 +15,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/persons")
-@Slf4j
 public class PersonController {
     private PersonService personService;
 
@@ -31,9 +30,7 @@ public class PersonController {
 
     @PostMapping("/search_persons")
     public ResponseEntity<List<PersonDTO>> searchPersons(@RequestParam(name="offset") int offset, @RequestParam(name="limit") int limit, @RequestBody(required = false) FilterOption... options) throws Exception{
-        log.info("searchPersons called with offset: {}, limit: {}, options: {}", offset, limit, options);
         List<Person> persons  = this.personService.searchPersons(offset, limit, options);
-        log.info("searchPersons result: {}", persons);
         List<PersonDTO> dtos  = new LinkedList<>();
         for  (Person pers : persons) {
             dtos.add(pers.toDTO());
@@ -43,7 +40,6 @@ public class PersonController {
 
     @PostMapping("/create_person")
     public ResponseEntity<Long>  createPerson(@RequestBody PersonDTO personDTO) throws Exception {
-        log.info("personDto: {}", personDTO);
         return ResponseEntity.ok(this.personService.createPerson(personDTO.toDAO(), personDTO.locationId(), personDTO.coordinatesId()));
     }
 

@@ -1,7 +1,6 @@
 package org.example.lab1.model.postgtres;
 
 import org.example.lab1.entities.dao.ImportFile;
-import org.example.lab1.entities.dao.Person;
 import org.example.lab1.exceptions.NotFoundException;
 import org.example.lab1.model.interfaces.ImportFileStorage;
 import org.example.lab1.util.LogCacheMetrics;

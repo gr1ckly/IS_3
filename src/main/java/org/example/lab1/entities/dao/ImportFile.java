@@ -49,6 +49,12 @@ public class ImportFile {
     @Check(constraints = "added_persons >= 0")
     private int addedPersons;
 
+    @Column(name = "uuid", length = 512)
+    private String uuidFile;
+
+    @Column(name = "content_type", length = 255)
+    private String contentType;
+
     @PrePersist
     public void creationDate() {
         if (this.creationDate == null) {

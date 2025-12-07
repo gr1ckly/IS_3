@@ -1,15 +1,17 @@
 import {useDispatch, useSelector} from "react-redux";
 import {useEffect, useState} from "react";
-import {SET_SHOW_IMPORT_FILES_HISTORY} from "../../consts/StateConsts";
+import {SET_NOTIFICATIONS, SET_SHOW_IMPORT_FILES_HISTORY} from "../../consts/StateConsts";
 import styles from "../../styles/ImportHistoryTable.module.css";
-import {selectReloadImportFiles} from "../../storage/StateSelectors";
+import {selectNotifications, selectReloadImportFiles} from "../../storage/StateSelectors";
 import TableState from "../../storage/states/TableState";
-import ImportFileDTO from "../../dtos/ImportFileDTO";
 import ImportFileService from "../../services/ImportFileService";
+import {ImportStatusEnum} from "../../dtos/ImportStatusEnum";
+import ImportFileDTO from "../../dtos/ImportFileDTO";
 
 export default function ImportHistoryTable() {
     const dispatcher = useDispatch();
     const reloadImportFiles = useSelector(selectReloadImportFiles);
+    const notifications = useSelector(selectNotifications);
     const [importFiles, setImportFiles] = useState<ImportFileDTO[]>([]);
     const [localTableState, setLocalTableState] = useState<TableState>({
         pageSize: 10,
@@ -48,6 +50,15 @@ export default function ImportHistoryTable() {
         }
     };
 
+    const downloadFile = async  (file: ImportFileDTO) => {
+        const link = await ImportFileService.getDownloadLink(file.id);
+        if (link === "") {
+            dispatcher({type: SET_NOTIFICATIONS, payload: [...notifications, `Не удалось скачать файл ${file.name}`]})
+            return
+        }
+        window.location.href = link;
+    };
+
     return (
         <div className={styles.historyCard}>
             <div className={styles.header}>
@@ -69,6 +80,7 @@ export default function ImportHistoryTable() {
                         <th className={styles.headerCell}>creationDate</th>
                         <th className={styles.headerCell}>status</th>
                         <th className={styles.headerCell}>addedPersons</th>
+                        <th></th>
                     </tr>
                     </thead>
                     <tbody className={styles.body}>
@@ -80,6 +92,13 @@ export default function ImportHistoryTable() {
                             <th className={styles.cell}>{file.status}</th>
                             <th className={styles.cell}>
                                 {file.addedPersons !== undefined && file.addedPersons !== 0 ? file.addedPersons : ""}
+                            </th>
+                            <th className={styles.cell}>
+                                {file.status !== ImportStatusEnum.IN_PROGRESS &&
+                                    <button className={styles.downloadButton} onClick={() => downloadFile(file)}>
+                                        Скачать
+                                    </button>
+                                }
                             </th>
                         </tr>
                     ))}

@@ -18,12 +18,15 @@ import org.springframework.stereotype.Component;
 public class CacheMetricsAspect {
     private final Statistics stats;
 
-    @Value("#{servletContext.getInitParameter('cacheMetricsLogEnabled') ?: 'false'}")
-    private boolean cacheMetricsLogEnabled;
+    private final boolean cacheMetricsLogEnabled;
 
     @Autowired
-    public CacheMetricsAspect (SessionFactory sessionFactory){
+    public CacheMetricsAspect (
+            SessionFactory sessionFactory,
+            @Value("#{servletContext.getInitParameter('cacheMetricsLogEnabled') ?: 'false'}") boolean cacheMetricsLogEnabled
+    ){
         this.stats = sessionFactory.getStatistics();
+        this.cacheMetricsLogEnabled = cacheMetricsLogEnabled;
     }
 
     @Pointcut("@annotation(LogCacheMetrics)")

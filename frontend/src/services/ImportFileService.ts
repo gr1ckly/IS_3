@@ -18,6 +18,22 @@ class ImportFileService {
         return await response.json();
     }
 
+    public static async getDownloadLink(id: number) : Promise<string> {
+        const finalUrl: string = BASE_URL + IMPORT_FILES_PATH + "/" + id + "/download";
+        const response: Response = await fetch(finalUrl, {
+            method: "GET",
+            headers: {
+                'Accept' : "application/json",
+            },
+        });
+        if (!response.ok) {
+            console.log("Error while getting download link file_id: " + id);
+            return "";
+        }
+
+        return await response.text();
+    }
+
     public static async searchImportFiles(offset: number, limit: number) : Promise<ImportFileDTO[]> {
         const params = new URLSearchParams();
         params.append('offset', String(offset));

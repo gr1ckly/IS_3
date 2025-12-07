@@ -33,6 +33,11 @@
         <property name="maxWait" value="30000"/>
         <property name="connectTimeout" value="20000"/>
         <property name="testWhileIdle" value="true"/>
+
+        <property name="validationQuery" value="SELECT 1"/>
+        <property name="testOnBorrow" value="true"/>
+        <property name="timeBetweenEvictionRunsMillis" value="60000"/>
+        <property name="minEvictableIdleTimeMillis" value="300000"/>
     </bean>
 
     <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">

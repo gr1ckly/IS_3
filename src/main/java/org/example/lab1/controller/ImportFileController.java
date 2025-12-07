@@ -3,6 +3,7 @@ package org.example.lab1.controller;
 import org.example.lab1.entities.dao.ImportFile;
 import org.example.lab1.entities.dao.ImportStatus;
 import org.example.lab1.entities.dto.ImportFileDTO;
+import org.example.lab1.entities.dto.PersonDTO;
 import org.example.lab1.exceptions.BadDataException;
 import org.example.lab1.exceptions.BadFormatException;
 import org.example.lab1.model.ImportFileService;
@@ -41,11 +42,17 @@ public class ImportFileController {
         return ResponseEntity.ok(dtos);
     }
 
+    @GetMapping("/{id:\\d+}/download")
+    public ResponseEntity<String> updatePerson(@PathVariable("id") long id) throws Exception {
+        return ResponseEntity.ok(this.importFileService.getDownloadLink(id));
+    }
+
     @PostMapping("/import")
     public ResponseEntity<Long> importFile(@RequestParam("file") MultipartFile file) throws Exception {
         ImportFile newFile = new ImportFile();
         newFile.setName(StringUtils.hasText(file.getOriginalFilename()) ? StringUtils.cleanPath(file.getOriginalFilename()) : "unnamed");
         newFile.setStatus(ImportStatus.IN_PROGRESS);
+        newFile.setContentType(file.getContentType());
         Long id = this.importFileService.createImportFile(newFile);
         this.importFileService.startHandleFile(newFile, file.getInputStream());
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(id);

@@ -11,6 +11,6 @@ public record ImportFileDTO(Long id,
                             ImportStatus status,
                             int addedPersons) {
     public ImportFile toDAO() {
-        return new ImportFile(id, name, creationDate, status, addedPersons);
+        return new ImportFile(id, name, creationDate, status, addedPersons, "", "");
     }
 }

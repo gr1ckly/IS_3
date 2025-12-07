@@ -8,6 +8,7 @@ import org.example.lab1.entities.dao.ImportFile;
 import org.example.lab1.entities.dao.ImportStatus;
 import org.example.lab1.exceptions.BadDataException;
 import org.example.lab1.exceptions.BadFormatException;
+import org.example.lab1.model.interfaces.FileStorage;
 import org.example.lab1.model.interfaces.ImportFileStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 @Service
@@ -33,11 +35,14 @@ public class ImportFileService {
 
     private HandleFileExecutor handleFileExecutor;
 
+    private FileStorage fileStorage;
+
     @Autowired
-    public ImportFileService(ImportFileStorage importFilesStorage, NotificationService notificationService, HandleFileExecutor handleFileExecutor) {
+    public ImportFileService(ImportFileStorage importFilesStorage, NotificationService notificationService, HandleFileExecutor handleFileExecutor, FileStorage fileStorage) {
         this.importFileStorage = importFilesStorage;
         this. notificationService = notificationService;
         this.handleFileExecutor = handleFileExecutor;
+        this.fileStorage = fileStorage;
     }
 
     public int getImportFilesCount() throws Exception {
@@ -48,7 +53,17 @@ public class ImportFileService {
         return this.importFileStorage.searchImportFiles(offset, limit);
     }
 
+    public String getDownloadLink(Long id) throws Exception{
+        ImportFile currFile = this.importFileStorage.getFileByID(id);
+        return this.fileStorage.getDownloadLink(currFile.getUuidFile(), currFile.getName());
+    }
+
+    private String generateUUID() {
+        return UUID.randomUUID().toString();
+    }
+
     public long createImportFile(ImportFile file) throws Exception {
+        file.setUuidFile(this.generateUUID() + "-" + file.getName());
         long id = this.importFileStorage.createImportFile(file);
         this.notificationService.sendEvent(ImportFileService.importFilesEvent);
         return id;
@@ -58,7 +73,8 @@ public class ImportFileService {
     public CompletableFuture<Void> startHandleFile(ImportFile newFile, InputStream inputStream) throws Exception {
         try {
             log.error("Start file handling id: " + newFile.getId());
-            int count = this.handleFileExecutor.handleFile(inputStream);
+            int count = this.handleFileExecutor.handleFile(inputStream, newFile);
+            newFile = this.importFileStorage.getFileByID(newFile.getId());
             newFile.setStatus(ImportStatus.SUCCESS);
             newFile.setAddedPersons(count);
             this.importFileStorage.updateImportFile(newFile.getId(), newFile);

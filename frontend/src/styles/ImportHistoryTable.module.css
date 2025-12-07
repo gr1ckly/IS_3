@@ -110,3 +110,28 @@
     font-weight: bold;
     color: #ffffff;
 }
+
+.downloadButton {
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 2px solid #ccff00;
+    background: linear-gradient(135deg, #ccff00 0%, #8be600 100%);
+    color: #000000;
+    cursor: pointer;
+    font-weight: 600;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.downloadButton:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(204, 255, 0, 0.35);
+    filter: brightness(1.05);
+}
+
+.downloadButton:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    filter: none;
+}

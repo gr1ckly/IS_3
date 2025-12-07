@@ -82,6 +82,41 @@
 
     <context-param>
         <param-name>cacheMetricsLogEnabled</param-name>
-        <param-value>true</param-value>
+        <param-value>false</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>minioUrl</param-name>
+        <param-value>http://host.docker.internal:9000</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>minioUser</param-name>
+        <param-value>minioadmin</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>minioPassword</param-name>
+        <param-value>minioadmin</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>minioBucket</param-name>
+        <param-value>islabs</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>linkEviction</param-name>
+        <param-value>600</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>minioPartSize</param-name>
+        <param-value>15728640</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>publicMinioUrl</param-name>
+        <param-value>http://localhost:9000</param-value>
     </context-param>
 </web-app>
