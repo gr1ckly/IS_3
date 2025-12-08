@@ -12,15 +12,6 @@
 
         <property name="hibernate.hbm2ddl.auto">update</property>
 
-        <property name="hibernate.cache.use_second_level_cache">true</property>
-        <property name="hibernate.cache.use_query_cache">true</property>
-        <property name="hibernate.cache.region.factory_class">
-            org.infinispan.hibernate.cache.v62.InfinispanRegionFactory
-        </property>
-        <property name="hibernate.cache.infinispan.cfg">infinispan.xml</property>
-        <property name="hibernate.generate_statistics">true</property>
-        <property name="javax.persistence.sharedCache.mode">ENABLE_SELECTIVE</property>
-
         <property name="hibernate.jdbc.batch_size">100</property>
         <property name="hibernate.order_inserts">true</property>
         <property name="hibernate.order_updates">true</property>

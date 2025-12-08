@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.example.lab1.entities.dto.LocationDTO;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "location")
@@ -16,7 +17,9 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @AllArgsConstructor
 @NoArgsConstructor
-public class Location {
+public class Location implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     @Id
     @Column(
             name = "id",

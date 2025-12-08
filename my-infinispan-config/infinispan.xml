@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<infinispan
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+            urn:infinispan:config:15.2 https://infinispan.org/schemas/infinispan-config-15.2.xsd
+            urn:infinispan:server:15.2 https://infinispan.org/schemas/infinispan-server-15.2.xsd"
+        xmlns="urn:infinispan:config:15.2"
+        xmlns:server="urn:infinispan:server:15.2">
+
+    <cache-container name="default" statistics="true">
+
+        <transport
+                cluster="infinispan-cluster"
+                stack="tcp"
+                node-name="infinispan-node-1"/>
+
+        <local-cache name="default">
+            <encoding>
+                <key media-type="text/plain; charset=UTF-8"/>
+                <value media-type="text/plain; charset=UTF-8"/>
+            </encoding>
+        </local-cache>
+
+        <local-cache name="personById">
+            <encoding>
+                <key media-type="application/x-java-serialized-object"/>
+                <value media-type="application/x-java-serialized-object"/>
+            </encoding>
+        </local-cache>
+
+        <local-cache name="locationById">
+            <encoding>
+                <key media-type="application/x-java-serialized-object"/>
+                <value media-type="application/x-java-serialized-object"/>
+            </encoding>
+        </local-cache>
+
+        <local-cache name="coordinatesById">
+            <encoding>
+                <key media-type="application/x-java-serialized-object"/>
+                <value media-type="application/x-java-serialized-object"/>
+            </encoding>
+        </local-cache>
+    </cache-container>
+
+    <server xmlns="urn:infinispan:server:15.2">
+        <interfaces>
+            <interface name="public">
+                <inet-address value="0.0.0.0"/>
+            </interface>
+        </interfaces>
+
+        <socket-bindings default-interface="public" port-offset="0">
+            <socket-binding name="default" port="11222"/>
+        </socket-bindings>
+
+        <security>
+            <security-realms>
+                <security-realm name="default">
+                    <properties-realm/>
+                </security-realm>
+            </security-realms>
+        </security>
+
+        <endpoints socket-binding="default" security-realm="default"/>
+    </server>
+</infinispan>

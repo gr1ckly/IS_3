@@ -12,7 +12,10 @@ import org.example.lab1.model.interfaces.FileStorage;
 import org.example.lab1.model.interfaces.ImportFileStorage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
 
 import java.io.InputStream;
 import java.util.List;

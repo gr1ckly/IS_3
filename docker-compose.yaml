@@ -16,6 +16,7 @@ services:
     ports:
       - "8080:8080"
     depends_on:
+      - infinispan
       - db
       - minio
 
@@ -43,6 +44,16 @@ services:
     volumes:
       - minio_data:/data
     command: server /data --console-address ":9001"
+
+  infinispan:
+    image: infinispan/server:15.2.0.Final
+    environment:
+      USER: admin
+      PASS: admin
+    ports:
+      - "11222:11222"
+    volumes:
+      - "./my-infinispan-config/infinispan.xml:/opt/infinispan/server/conf/infinispan.xml"
 
 volumes:
   db_data:

@@ -14,6 +14,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 @RestController
+@Slf4j
 @RequestMapping("/persons")
 public class PersonController {
     private PersonService personService;
@@ -25,6 +26,7 @@ public class PersonController {
 
     @PostMapping("/get_count")
     public ResponseEntity<Integer> getCountPersons(@RequestBody(required = false) FilterOption... options) throws Exception {
+        log.info("getting person count");
         return ResponseEntity.ok(this.personService.getPersonCount(options));
     }
 

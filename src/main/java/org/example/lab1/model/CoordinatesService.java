@@ -30,7 +30,6 @@ public class CoordinatesService {
         this.notificationService = notificationService;
     }
 
-
     public long createCoordinates(Coordinates newCoordinates) throws Exception {
         long createdId = this.coordinatesStorage.createCoordinates(newCoordinates);
         notificationService.sendEvent(CoordinatesService.coordinatesEvent);

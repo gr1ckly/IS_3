@@ -12,6 +12,8 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,7 +35,6 @@ public class PostgresCoordinatesStorage implements CoordinatesStorage {
 
     @Override
     @Transactional
-    @LogCacheMetrics
     public long createCoordinates(Coordinates coords) throws Exception {
         sessionFactory.getCurrentSession().persist(coords);
         return coords.getId();
@@ -41,14 +42,13 @@ public class PostgresCoordinatesStorage implements CoordinatesStorage {
 
     @Override
     @Transactional
-    @LogCacheMetrics
+    @Cacheable(cacheNames = "coordinatesById", key = "#p0")
     public Coordinates getCoordinatesByID(long id) throws Exception {
         return sessionFactory.getCurrentSession().find(Coordinates.class, id);
     }
 
     @Override
     @Transactional
-    @LogCacheMetrics
     public int getCount(FilterOption... options) throws Exception {
         int count = 0;
         StringBuilder query = new StringBuilder();
@@ -64,7 +64,6 @@ public class PostgresCoordinatesStorage implements CoordinatesStorage {
 
     @Override
     @Transactional
-    @LogCacheMetrics
     public List<Coordinates> searchCoordinates(int offset, int limit, FilterOption... options) throws Exception {
         List<Coordinates> coords = null;
         StringBuilder query = new StringBuilder();
@@ -81,7 +80,7 @@ public class PostgresCoordinatesStorage implements CoordinatesStorage {
 
     @Override
     @Transactional
-    @LogCacheMetrics
+    @CacheEvict(cacheNames = "coordinatesById", key = "#p0")
     public int updateCoordinates(long id, Coordinates newCoords) throws Exception {
         Session currSession = sessionFactory.getCurrentSession();
         if (currSession.find(Coordinates.class, id) != null) {
@@ -95,7 +94,7 @@ public class PostgresCoordinatesStorage implements CoordinatesStorage {
 
     @Override
     @Transactional
-    @LogCacheMetrics
+    @CacheEvict(cacheNames = "coordinatesById", allEntries = true)
     public int deleteCoordinates(long id) throws Exception {
         StringBuilder query = new StringBuilder();
         query.append("DELETE FROM coordinates ");
@@ -105,14 +104,12 @@ public class PostgresCoordinatesStorage implements CoordinatesStorage {
 
     @Override
     @Transactional
-    @LogCacheMetrics
     public void flush() throws Exception{
         this.sessionFactory.getCurrentSession().flush();
     }
 
     @Override
     @Transactional
-    @LogCacheMetrics
     public void clear() throws Exception{
         this.sessionFactory.getCurrentSession().clear();
     }

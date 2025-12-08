@@ -5,9 +5,9 @@ import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
-import org.hibernate.SessionFactory;
-import org.hibernate.stat.CacheRegionStatistics;
-import org.hibernate.stat.Statistics;
+import org.infinispan.client.hotrod.RemoteCacheManager;
+import org.infinispan.client.hotrod.ServerStatistics;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -16,17 +16,17 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class CacheMetricsAspect {
-    private final Statistics stats;
-
     private final boolean cacheMetricsLogEnabled;
+
+    private final RemoteCacheManager remoteCacheManager;
 
     @Autowired
     public CacheMetricsAspect (
-            SessionFactory sessionFactory,
-            @Value("#{servletContext.getInitParameter('cacheMetricsLogEnabled') ?: 'false'}") boolean cacheMetricsLogEnabled
+            @Value("#{servletContext.getInitParameter('cacheMetricsLogEnabled') ?: 'false'}") boolean cacheMetricsLogEnabled,
+            ObjectProvider<RemoteCacheManager> remoteCacheManagerProvider
     ){
-        this.stats = sessionFactory.getStatistics();
         this.cacheMetricsLogEnabled = cacheMetricsLogEnabled;
+        this.remoteCacheManager = remoteCacheManagerProvider.getIfAvailable();
     }
 
     @Pointcut("@annotation(LogCacheMetrics)")
@@ -34,19 +34,20 @@ public class CacheMetricsAspect {
 
     @After("annotatedMethod()")
     public void logCacheMetrics(JoinPoint jp) {
+        /*
         if (this.cacheMetricsLogEnabled) {
-            for (String region: this.stats.getSecondLevelCacheRegionNames()) {
-                CacheRegionStatistics regionStats = this.stats.getCacheRegionStatistics(region);
-                if (regionStats == null) {
-                    log.warn("Incorrect region name: {}", region);
-                } else {
-                    log.info("Region: {} cache hits: {}, cache misses: {} after {}",
-                            region,
-                            regionStats.getHitCount(),
-                            regionStats.getMissCount(),
-                            jp.getSignature());
+            if (this.remoteCacheManager != null) {
+                for (String cacheName : this.remoteCacheManager.getCacheNames()) {
+                    ServerStatistics cacheStats = this.remoteCacheManager.getCache(cacheName).serverStatistics();
+                    if (cacheStats != null) {
+                        log.info("Remote cache: {} hits: {}, misses: {} after {}",
+                                cacheName,
+                                cacheStats.getStatistic(ServerStatistics.HITS),
+                                cacheStats.getStatistic(ServerStatistics.MISSES),
+                                jp.getSignature());
+                    }
                 }
             }
-        }
+        }*/
     }
 }

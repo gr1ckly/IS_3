@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.example.lab1.entities.dto.CoordinatesDTO;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Check;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "coordinates")
@@ -17,7 +18,9 @@ import org.hibernate.annotations.Check;
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @AllArgsConstructor
 @NoArgsConstructor
-public class Coordinates {
+public class Coordinates implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     @Id
     @Column(
             name = "id",

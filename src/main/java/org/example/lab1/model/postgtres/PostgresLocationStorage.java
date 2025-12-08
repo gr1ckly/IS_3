@@ -11,6 +11,8 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,7 +34,6 @@ public class PostgresLocationStorage implements LocationStorage {
 
     @Override
     @Transactional
-    @LogCacheMetrics
     public long createLocation(Location location) throws Exception {
         sessionFactory.getCurrentSession().persist(location);
         return location.getId();
@@ -40,14 +41,13 @@ public class PostgresLocationStorage implements LocationStorage {
 
     @Override
     @Transactional
-    @LogCacheMetrics
+    @Cacheable(cacheNames = "locationById", key = "#p0")
     public Location getLocationByID(long id) throws Exception {
         return sessionFactory.getCurrentSession().find(Location.class, id);
     }
 
     @Override
     @Transactional
-    @LogCacheMetrics
     public int getCount(FilterOption... options) throws Exception {
         int count = 0;
         StringBuilder query = new StringBuilder();
@@ -63,7 +63,6 @@ public class PostgresLocationStorage implements LocationStorage {
 
     @Override
     @Transactional
-    @LogCacheMetrics
     public List<Location> searchLocations(int offset, int limit, FilterOption... options) throws Exception {
         StringBuilder query = new StringBuilder();
         query.append("SELECT * FROM location ");
@@ -76,7 +75,7 @@ public class PostgresLocationStorage implements LocationStorage {
 
     @Override
     @Transactional
-    @LogCacheMetrics
+    @CacheEvict(cacheNames = "locationById", key = "#p0")
     public int updateLocation(long id, Location newLocation) throws Exception {
         Session currSession = sessionFactory.getCurrentSession();
         if (currSession.find(Location.class, id) != null){
@@ -90,7 +89,7 @@ public class PostgresLocationStorage implements LocationStorage {
 
     @Override
     @Transactional
-    @LogCacheMetrics
+    @CacheEvict(cacheNames = "locationById", allEntries = true)
     public int deleteLocation(long id) throws Exception {
         StringBuilder query = new StringBuilder();
         query.append("DELETE FROM location ");
@@ -100,14 +99,12 @@ public class PostgresLocationStorage implements LocationStorage {
 
     @Override
     @Transactional
-    @LogCacheMetrics
     public void flush() throws Exception{
         this.sessionFactory.getCurrentSession().flush();
     }
 
     @Override
     @Transactional
-    @LogCacheMetrics
     public void clear() throws Exception{
         this.sessionFactory.getCurrentSession().clear();
     }

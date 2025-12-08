@@ -11,6 +11,7 @@ import org.hibernate.annotations.*;
 import jakarta.persistence.Table;
 
 import java.util.Date;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "person")
@@ -20,7 +21,9 @@ import java.util.Date;
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @AllArgsConstructor
 @NoArgsConstructor
-public class Person {
+public class Person implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     @Id
     @Column(
             name = "id",
